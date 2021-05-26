@@ -116,6 +116,8 @@ After the `Installation` Process and `Clearing Security`. If you still facing pr
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ![Minecraft Clone Application Demo GIF](https://github.com/jaypatel15406/Minecraft-Clone-Using-Ursina-Engine/blob/main/Work%20Demo%20GIFs/Application%20Demo.gif)
 
+For '**Closing Application**' Press `Alt + Tab` and hover on `X` icon and '**close it**'.
+
 ------------------------------------------------------------------
 
 ### Game Control Guide:-
