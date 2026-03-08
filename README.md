@@ -1,169 +1,557 @@
-# Minecraft Clone build with Ursina Engine :video_game:
+# Minecraft Clone using Ursina Engine :video_game:
 
-Build a clone of the very popular '[Voxel](https://en.wikipedia.org/wiki/Voxel#:~:text=Minecraft%20is%20a%20sandbox%20video,as%20a%20cubic%20%22block%22.&text=The%20voxel%20engine%20allows%20for%20both%20terrain%20destruction%20and%20creation.)' based game called '[Minecraft](https://en.wikipedia.org/wiki/Minecraft)' using '**Ursina Engine**'. The sole purpose of building this clone is to '**Play**' and '**Learn**' together. Because as a kid everyone enjoys playing games. So, this project will help us to understand the mechanism of each functionality in a game. One theory that inclined me to develop this project was a '[Game Theory](https://en.wikipedia.org/wiki/Game_design#:~:text=Game%20theory%20is%20a%20study,discipline%22%20is%20interactive%20decision%20theory.)'. Basically '**Game Theory**' is a study of strategic decision making.
+> **Fun Fact:** Minecraft was originally created by Markus "Notch" Persson in 2009 as a voxel-based sandbox game. The term "voxel" comes from "volumetric pixel" - essentially a 3D pixel that represents value in three-dimensional space, just like the blocks in our game!
 
-#### What activities can we do in our small 'Minecraft World' :thinking:?
+## Abstract
 
-There are multiple activities we can do in this small world. Such as:-
-- Creating House
-- Build Tree
-- Build Towers
-- and much more
+The Minecraft Clone is a Python-based voxel sandbox game built with the Ursina Engine. This project recreates the core mechanics of Minecraft, allowing players to build, explore, and interact with a 3D block-based world. Designed for learning and experimentation, it demonstrates fundamental game development concepts including 3D rendering, collision detection, player controls, and interactive voxel manipulation.
 
-If you find something interesting to add up to a list. Then feel free to add it.
+**Key Features:**
+- First-person perspective (FPP) player controls
+- Block placement and destruction mechanics
+- 10 unique block types with distinct textures
+- Interactive hand animations
+- Spatial audio for block interactions
+- Real-time FPS monitoring
+- Customizable world dimensions
 
-#### Game Specifications:-
+---
+
+## Project Architecture
+
+### System Architecture Diagram
+
+```mermaid
+flowchart TB
+    subgraph User Layer
+        A[Player Input]
+    end
+    
+    subgraph Application Layer
+        B[Ursina Game Engine]
+        C[Main Application Loop]
+        D[Input Handler]
+    end
+    
+    subgraph Game Logic Layer
+        E[Voxel System]
+        F[Player Controller]
+        G[Block Selection System]
+    end
+    
+    subgraph Rendering Layer
+        H[3D Scene Graph]
+        I[Texture Manager]
+        J[Audio System]
+    end
+    
+    subgraph Asset Layer
+        K[Texture Assets]
+        L[Audio Assets]
+        M[Model Assets]
+    end
+    
+    A --> D
+    D --> B
+    B --> C
+    C --> E
+    C --> F
+    C --> G
+    E --> H
+    F --> H
+    G --> E
+    H --> I
+    E --> J
+    I --> K
+    J --> L
+    H --> M
+    
+    style A fill:#4CAF50,stroke:#333,stroke-width:2px,color:#fff
+    style B fill:#2196F3,stroke:#333,stroke-width:2px,color:#fff
+    style K fill:#FF9800,stroke:#333,stroke-width:2px,color:#fff
+    style L fill:#FF9800,stroke:#333,stroke-width:2px,color:#fff
+```
+
+### Game Flow Diagram
+
+```mermaid
+flowchart TD
+    A[Application Start] --> B[Initialize Ursina Engine]
+    B --> C[Load Texture Assets]
+    C --> D[Load Audio Assets]
+    D --> E[Initialize Game World]
+    E --> F[Generate Terrain 20x20]
+    F --> G[Create Player Controller]
+    G --> H[Initialize Sky Entity]
+    H --> I[Initialize Player Hand]
+    I --> J[Configure Window Settings]
+    J --> K[Start Game Loop]
+    K --> L{Check Input}
+    L -->|Key 1-0| M[Change Block Selection]
+    L -->|Left Click| N[Place Block]
+    L -->|Right Click| O[Destroy Block]
+    L -->|WASD| P[Move Player]
+    L -->|Space| Q[Jump]
+    M --> R[Update Hand Animation]
+    N --> R
+    O --> R
+    P --> S[Play Movement Sound]
+    Q --> S
+    R --> T[Render Frame]
+    S --> T
+    T --> K
+    
+    style A fill:#4CAF50,stroke:#333,stroke-width:2px,color:#fff
+    style K fill:#f44336,stroke:#333,stroke-width:2px,color:#fff
+    style N fill:#2196F3,stroke:#333,stroke-width:2px,color:#fff
+    style O fill:#FF9800,stroke:#333,stroke-width:2px,color:#fff
+    style T fill:#9C27B0,stroke:#333,stroke-width:2px,color:#fff
+```
+
+---
+
+## File Architecture
+
+### Directory Structure
 
 ```
-01.) Terrain                         :- Desert Terrain
-02.) World Dimension                 :- 20 X 20 (400 Voxel Area)
-03.) World Time                      :- Day Time
-04.) Player View                     :- FPP (First-Person Perspective) View
+Minecraft-Clone-Using-Ursina-Engine/
+├── main.py                      # Application entry point: Ursina game initialization and main loop
+├── requirements.txt             # Python dependencies with version constraints
+├── README.md                    # Project documentation
+├── LICENSE                      # MIT License
+└── .gitignore                   # Git ignore rules
+│
+└── assets/
+    ├── favicon_assets/
+    │   ├── sword_favicon_icon.ico    # Application icon for window/taskbar
+    │   └── sword.png                 # Sword icon for application
+    │
+    ├── graphical_assets/
+    │   ├── diamond_ore_block.png     # Diamond ore block texture
+    │   ├── emerald_ore_block.png     # Emerald ore block texture
+    │   ├── gold_ore_block.png        # Gold ore block texture
+    │   ├── leaves.png                # Tree leaves texture
+    │   ├── obsidian.png              # Obsidian block texture
+    │   ├── player_arm.png            # Player hand/arm texture
+    │   ├── sand.png                  # Sand block texture (default)
+    │   ├── sky.png                   # Sky sphere texture
+    │   ├── sponge.jpg                # Sponge block texture
+    │   ├── stone_block.png           # Stone block texture
+    │   ├── stone_brick.png           # Stone brick texture
+    │   └── wood_plank.jpg            # Wood plank texture
+    │
+    └── sound_assets/
+        ├── block_sound.mp3           # Block place/destroy sound effect
+        └── player_movement_sound.mp3 # Player movement audio feedback
 ```
 
-#### Game Settings:- 
+---
 
+## Prerequisites
+
+### System Requirements
+
+| Component | Version | Description |
+|-----------|---------|-------------|
+| Python | 3.13+ | Required runtime environment |
+| pip | 23.0+ | Python package installer |
+| Ursina Engine | 8.3.0+ | Game engine framework |
+| OpenGL | 3.3+ | Graphics rendering API |
+| RAM | 4GB+ | Minimum memory requirement |
+| Storage | 100MB+ | Available disk space |
+
+### Platform Support
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| macOS (Intel) | ✅ Fully Supported | Native OpenGL support |
+| macOS (Apple Silicon M1/M2/M3) | ✅ Supported | Runs via Rosetta 2 or native |
+| Windows 10/11 | ✅ Fully Supported | DirectX/OpenGL |
+| Linux (Ubuntu/Debian) | ✅ Fully Supported | OpenGL/Mesa drivers |
+
+---
+
+## Installation
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/jaypatel15406/Minecraft-Clone-Using-Ursina-Engine.git
+cd Minecraft-Clone-Using-Ursina-Engine
 ```
-01.) Player Freefall                 :- Enabled
-02.) Player Movement Sound           :- Enabled
-03.) Block Placing/ Destroying Sound :- Enabled
-04.) FPS (Frame-rate Per Second)     :- Enabled
-     Counter
-05.) Full Screen Mode                :- Disabled
-06.) Hand Movement                   :- Enabled
-     while Placing/ Destroying Blocks
+
+### Step 2: Create and Activate Virtual Environment
+
+**macOS/Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
 ```
 
-------------------------------------------------------------------
-
-### How to access game in 'console mode' using 'Python Script'?
-
-Before moving further ahead with a coding part. Make sure you have fullfiled all the '**Requirements**' needed for this project. To verify that open a `Terminal` in the `Root Directory` of the project and write a `Command` given below:-
-
+**Windows (Command Prompt):**
+```bash
+python -m venv venv
+venv\Scripts\activate.bat
 ```
+
+**Windows (PowerShell):**
+```bash
+python -m venv venv
+venv\Scripts\Activate.ps1
+```
+
+### Step 3: Install Dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-Above given `Command` will automatically install all the '**Requirements**' needed for this project. After that you can start exploring '[Main Python Script](https://github.com/jaypatel15406/Minecraft-Clone-Using-Ursina-Engine/blob/main/src/Minecraft_Clone.py)'. To run a game in '**Console Mode**' using this '**Python Script**'. For the same follow the instructions given in the image below:-
+---
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ![Minecraft Clone Python Script Instruction GIF](https://github.com/jaypatel15406/Minecraft-Clone-Using-Ursina-Engine/blob/main/Work%20Demo%20GIFs/Python%20Script.gif)
+## Running the Game
 
-### How to change 'Game Specifications' And 'Game Settings':-
+### Start the Game
 
-You can change '**Game Specifications**' And '**Game Settings**' by updating `Code` in '[Minecraft Clone Python File](https://github.com/jaypatel15406/Minecraft-Clone-Using-Ursina-Engine/blob/main/src/Minecraft_Clone.py)'. So, let's see how we can update our app:-
-
-<b>For Update in 'Game Sepcification'</b>
-
+```bash
+python main.py
 ```
-# For example if you want to 'Increase' you 'World' Size to '25' Blocks
-dimension = 25  # 'Dimension' should be of 25X25 Blocks
+
+The game window will open automatically with the following default settings:
+
+| Setting | Value |
+|---------|-------|
+| Window Title | Minecraft Clone Using Ursina Engine |
+| Resolution | Default (auto-detected) |
+| Fullscreen | Disabled |
+| FPS Counter | Enabled |
+| World Size | 20x20 blocks (400 total) |
+
+---
+
+## Game Controls
+
+### Movement Controls
+
+| Key | Action | Description |
+|:---:|--------|-------------|
+| `W` | Move Forward | Walk forward in the direction you're facing |
+| `A` | Move Left | Strafe left |
+| `S` | Move Backward | Walk backward |
+| `D` | Move Right | Strafe right |
+| `Space` | Jump | Jump upward (hold for higher jump) |
+| `Shift` | Fall | Hold to fall faster / disable freefall |
+| `Mouse` | Look Around | Move mouse to change view direction |
+
+### Block Selection Controls
+
+| Key | Block Type | Description |
+|:---:|------------|-------------|
+| `1` | Sand Block | Default block, desert terrain style |
+| `2` | Stone Block | Gray stone texture |
+| `3` | Stone Brick | Decorative stone brick pattern |
+| `4` | Wood Plank | Wooden plank texture |
+| `5` | Leaves | Tree foliage texture |
+| `6` | Obsidian | Dark purple/black decorative block |
+| `7` | Sponge | Yellow sponge texture |
+| `8` | Gold Ore Block | Gold ore with speckles |
+| `9` | Diamond Ore Block | Diamond ore with blue crystals |
+| `0` | Emerald Ore Block | Emerald ore with green crystals |
+
+### Interaction Controls
+
+| Action | Mouse Button | Description |
+|--------|--------------|-------------|
+| Place Block | Left Click | Place selected block on targeted face |
+| Destroy Block | Right Click | Remove targeted block |
+
+---
+
+## Game Specifications
+
+### World Configuration
+
+| Specification | Value | Description |
+|---------------|-------|-------------|
+| Terrain Type | Desert Terrain | Flat sand-based starting world |
+| World Dimensions | 20 x 20 | 400 total voxel area |
+| World Time | Day Time | Bright daylight lighting |
+| Player View | FPP | First-Person Perspective |
+| Gravity | Enabled | Standard Minecraft physics |
+
+### Active Features
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Player Freefall | ✅ Enabled | Players can fall from heights |
+| Movement Sound | ✅ Enabled | Audio feedback for WASD movement |
+| Block Sound Effects | ✅ Enabled | Audio for placing/destroying blocks |
+| FPS Counter | ✅ Enabled | Real-time frame rate display |
+| Hand Animation | ✅ Enabled | Arm moves when interacting with blocks |
+| Fullscreen Mode | ❌ Disabled | Windowed mode by default |
+
+---
+
+## Customization Guide
+
+### Modify World Size
+
+To change the world dimensions, edit `main.py`:
+
+```python
+# Increase world size to 30x30 blocks (900 total)
+dimension: int = 30
 for i in range(dimension):
     for j in range(dimension):
-        # Initialize 'Voxel' class
-        voxel = Voxel(position = (i, 0, j))
+        Voxel(position=(i, 0, j))
 ```
 
-<b>For Update in 'Game Settings'</b>
+> **Note:** Larger worlds require more memory and may reduce FPS.
+
+### Change Window Settings
+
+Modify window configuration in `main.py`:
+
+```python
+# Enable fullscreen mode
+window.fullscreen = True
+
+# Hide FPS counter
+window.fps_counter.enabled = False
+
+# Change window title
+window.title = 'My Custom Minecraft'
+```
+
+### Add New Block Types
+
+1. **Add texture path to `BLOCK_TEXTURES` dictionary:**
+   ```python
+   BLOCK_TEXTURES = {
+       'Sand Block': 'assets/graphical_assets/sand.png',
+       'Your Block': 'assets/graphical_assets/your_texture.png',
+   }
+   ```
+
+2. **Add texture loading:**
+   ```python
+   your_block_texture = load_texture(BLOCK_TEXTURES['Your Block'])
+   ```
+
+3. **Add to `TEXTURE_MAP`:**
+   ```python
+   TEXTURE_MAP = {
+       'Sand Block': sand_block_texture,
+       'Your Block': your_block_texture,
+   }
+   ```
+
+4. **Add key binding in `KEY_BLOCK_MAP`:**
+   ```python
+   KEY_BLOCK_MAP = {
+       '1': 'Sand Block',
+       '2': 'Your Block',
+   }
+   ```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. ModuleNotFoundError: No module named 'ursina'
+
+**Solution:**
+```bash
+# Ensure virtual environment is activated
+pip install -r requirements.txt --upgrade
+```
+
+#### 2. Black Screen or No Textures Loading
+
+**Solution:**
+```bash
+# Verify asset files exist
+ls -la assets/graphical_assets/
+
+# Check file permissions
+chmod -R 755 assets/
+```
+
+#### 3. Audio Not Working
+
+**Solution:**
+- Check system volume settings
+- Verify audio files exist: `ls assets/sound_assets/`
+- Ursina requires OpenAL or similar audio backend
+
+#### 4. Low FPS / Laggy Performance
+
+**Solution:**
+```python
+# Reduce world size in main.py
+dimension: int = 15  # Smaller world = better performance
+```
+
+#### 5. macOS Apple Silicon Issues
+
+**Solution:**
+```bash
+# Run with Rosetta 2 translation
+arch -x86_64 python main.py
+```
+
+#### 6. Mouse Cursor Not Captured
+
+**Solution:**
+- Press `Esc` to release/recapture mouse
+- Click on game window to focus
+
+---
+
+## Development
+
+### Code Structure
 
 ```
-# For example we have to [lay game in Fullscreen Mode              
-window.fullscreen = False
+main.py                          # Entry point and game logic
+├── Imports                      # Ursina engine and dependencies
+├── Asset Loading                # Texture and audio initialization
+├── Block Configuration          # Block type mappings
+├── Update Function              # Per-frame input handling
+├── Voxel Class                  # Block interaction logic
+├── Sky Class                    # Sky sphere rendering
+├── PlayerHand Class             # Hand animation system
+└── World Generation             # Terrain initialization
 ```
 
-> If you are customizing any '**Game Sepcification**' OR '**Game Settings**'. Then it will also impact on your gaming experience and device perfomance as well.
+### Code Modernization (Python 3.13+)
 
-------------------------------------------------------------------
+| Feature | Implementation |
+|---------|---------------|
+| Type Hints | All functions use `-> None`, `: str`, `: int`, etc. |
+| Forward References | `from __future__ import annotations` |
+| Dictionary Mapping | Block selection uses dict lookups instead of if-chains |
+| Docstrings | Google-style documentation for all classes/functions |
+| Snake Case | All files and folders follow PEP 8 naming conventions |
 
-### How to Install Application?
+---
 
-For the Installation process of application. Kindly follow the steps given below:-
+## Performance Optimization
 
-**Step 1:-** Go to `/Minecraft-Clone-Using-Ursina-Engine/Application Setup/` Path
+| Optimization | Impact | How To |
+|--------------|--------|--------|
+| Reduce World Size | High | Set `dimension = 15` instead of 20 |
+| Lower Resolution | Medium | Adjust window size in Ursina settings |
+| Disable Sounds | Low | Comment out Audio initialization |
 
-**Step 2:-** Click on '**Minecraft_Clone.exe**' Setup file
+### Resource Usage
 
-**Step 3:-** Follow the Steps given in '**Install Wizard**'. 
+| Resource | Approximate Usage |
+|----------|------------------|
+| CPU | 10-30% (single core) |
+| Memory | 200-500 MB |
+| GPU | OpenGL 3.3+ required |
+| Storage | 50 MB (assets included) |
 
-**Step 4:-** After Installation process gets completed. Click '**Finish**'
+---
 
-**Step 5:-** Congratulations !!! You have successfully Installed Game. Now go to `Path` where you have installed game. And go to that Folder and simply Click '**Sword Icon**' and enjoy game.
+## Contributing
 
-If you are still facing problems in the Installation Process then refer the image guide stated below:-
+### How to Contribute
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ![Minecraft Clone Application Installation Instruction GIF](https://github.com/jaypatel15406/Minecraft-Clone-Using-Ursina-Engine/blob/main/Work%20Demo%20GIFs/Application%20Installation.gif)
+1. **Find an Issue:** Browse [open issues](https://github.com/jaypatel15406/Minecraft-Clone-Using-Ursina-Engine/issues)
 
-### If you face error due to '**Windows Defender System**' in accesssing application after the installation process 
+2. **Claim an Issue:** Comment: "Can I work on this?" on the issue
 
-This `Error` occured due to `Windows Defender` Settings. It sometime throw error if we install `Software` with `Unknown Auther` or without `LICENSE`. 
+3. **Fork and Clone:**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/Minecraft-Clone-Using-Ursina-Engine.git
+   cd Minecraft-Clone-Using-Ursina-Engine
+   ```
 
-### Solution of above mentioned error:-
+4. **Create a Branch:**
+   ```bash
+   git checkout -b feature/issue-123-short-description
+   ```
 
-For the `Solution` of the `issue` mentioned above. Kindly follow the steps given below:-
+5. **Make Changes:**
+   - Follow existing code style
+   - Add type hints and docstrings
+   - Test gameplay thoroughly
 
-**Step 1:-** Open '**Windows Security**'
+6. **Commit and Push:**
+   ```bash
+   git add .
+   git commit -m "Fixes #123: Brief description of changes"
+   git push origin feature/issue-123-short-description
+   ```
 
-**Step 2:-** Select '**Virus & Protection**' from the left hand side menu
+7. **Create Pull Request:**
+   - Title format: `Fixes #123: Issue Title`
+   - Include description of changes
+   - Reference related issues
 
-**Step 3:-** Go to '**Virus & threat protection setting**' and select '**Manage Setting**'
+---
 
-**Step 3:-** Turn Off '**Real-time Protection**'
+## Future Enhancements
 
-**Step 4:-** Try Accessing Application again
+1. **World Generation:**
+   - Procedural terrain generation
+   - Biome system (desert, forest, mountains)
+   - Cave and ore generation
 
-> **NOTE:-** If you are turning ON 'Real-time Protection' then it will locates and stops Malwares from installing or running on your device. You can turn off this setting for a short time before it turn back on automatically.
+2. **Building Features:**
+   - Block crafting system
+   - Inventory UI
+   - Block stacking limits
 
-After the `Installation` Process and `Clearing Security`. If you still facing problem finding `Application`. Kindly follow the image guide given below for the application demo:-
+3. **Gameplay:**
+   - Day/night cycle
+   - Weather system
+   - Mob/creature spawning
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ![Minecraft Clone Application Demo GIF](https://github.com/jaypatel15406/Minecraft-Clone-Using-Ursina-Engine/blob/main/Work%20Demo%20GIFs/Application%20Demo.gif)
+4. **Multiplayer:**
+   - Network multiplayer support
+   - Server hosting capabilities
 
-For '**Closing Application**' Press `Alt + Tab` and hover on `X` icon and '**close it**'.
+5. **Graphics:**
+   - Shader support
+   - Dynamic lighting
+   - Water and lava physics
 
-------------------------------------------------------------------
+---
 
-### Game Control Guide:-
+## Resources
 
-|      Keys      |         Actions                   |    
-|     :---:      |          :---:                    |
-|       w        | To Move Forward                   |
-|       a        | To Move Left                      |
-|       s        | To Move Backward                  |
-|       d        | To Move Right                     |
-|    'Space'     | To Jump                           |
-|       0        | To Select '**Emerald Ore**' Block |
-|       1        | To Select '**Sand**' Block        |
-|       2        | To Select '**Stone**' Block       |
-|       3        | To Select '**Stone**' Brick       |
-|       4        | To Select '**Wood**' Plank        |
-|       5        | To Select '**Leaves**'            |
-|       6        | To Select '**Obsidian**'          |
-|       7        | To Select '**Sponge**'            |
-|       8        | To Select '**Gold Ore**' Block    |
-|       9        | To Select '**Diamond Ore**' Block |
+- [Ursina Engine Documentation](https://www.ursinaengine.org/documentation.html)
+- [Ursina Engine Samples](https://github.com/pokepetter/ursina/blob/master/samples/minecraft_clone.py)
+- [Python Game Development with Pygame](https://realpython.com/pygame-a-primer/)
+- [Blender for 3D Asset Creation](https://www.blender.org/)
 
-------------------------------------------------------------------
+---
 
-### For more resources:-
+## License
 
-1.) [Ursina Engine Official Documentation](https://www.ursinaengine.org/documentation.html) <br/>
-2.) [Ursina Engine Official Cheat Sheet](https://www.ursinaengine.org/cheat_sheet.html) <br/>
-3.) [Ursina Engine Official Minecraft Clone Code](https://github.com/pokepetter/ursina/blob/master/samples/minecraft_clone.py)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-------------------------------------------------------------------
+---
 
-#### To Contribute to the Project:
+## Support
 
-1. Choose any open issue from [here](https://github.com/jaypatel15406/Minecraft-Clone-Using-Ursina-Engine/issues). 
-2. Comment on the Issue: `Can I work on this?` and Start Exploring it.
-3. Make changes to your Fork and Send a PR.
+For issues, questions, or contributions:
 
-#### To Create a PR (Pull Request):
+- **Bug Reports:** [GitHub Issues](https://github.com/jaypatel15406/Minecraft-Clone-Using-Ursina-Engine/issues)
+- **Discussions:** GitHub Discussions tab
+- **Email:** jaypatel15406@gmail.com
 
-For Creating Valid PR Successfully. Kindly follow Guide: https://help.github.com/articles/creating-a-pull-request/
+---
 
-#### To Send a PR, Follow Rules Carefully !!   
+<div align="center">
 
-**Otherwise your PR will be Closed**:
+**Built with ❤️ using Python and Ursina Engine**
 
-1. For Appropriate PR, follow Title Format: `Fixes #IssueNo : Name of the Issue`
+*Happy Building!* 🎮🏗️
 
-For any Doubts related to the Issues, such as understanding Issue better etc., Comment Down your Queries on the Respective Issue.
+</div>
